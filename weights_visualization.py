@@ -15,7 +15,7 @@ def _get_weights(filename):
     return weights
 
 
-def _get_compact_weights(filename):
+def _get_compact_weights(filename, limit=None):
     weights = []
     frequency = []
     discrete_time = []
@@ -23,12 +23,56 @@ def _get_compact_weights(filename):
         for i, weights_triple in enumerate(weights_file):
             current_weights = weights_triple.replace(",", ".").split("\t")
             weights.append([current_weights[1], current_weights[2]])
-            discrete_time.append(int(float(current_weights[0].strip())))
+            discrete_time_base = int(float(current_weights[0].strip()))
+            discrete_time.append(discrete_time_base)
             curr_frequency = int(float(current_weights[2].strip()))
             frequency.append(curr_frequency)
             for k in range(0, curr_frequency):
                 weights.append([current_weights[0], current_weights[1]])
+                discrete_time_base += 1
+                discrete_time.append(discrete_time_base)
+            if limit is not None and (i == limit or discrete_time_base >= limit):
+                print("Limit reached")
+                break
     return discrete_time, weights
+
+
+def _get_compact_discrete_weights(filename, limit=None):
+    weights = []
+    frequency = []
+    discrete_time = []
+    with open(filename, "r", encoding="utf-8") as weights_file:
+        print(f"Reading file {filename}")
+        for i, weights_triple in enumerate(weights_file):
+            current_weights = weights_triple.replace(",", ".").split("\t")
+            weights.append([int(current_weights[1]), int(current_weights[2])])
+            discrete_time_base = int(current_weights[0].strip())
+            discrete_time.append(discrete_time_base)
+            curr_frequency = int(current_weights[3].strip())
+            frequency.append(curr_frequency)
+            for k in range(0, curr_frequency):
+                weights.append([current_weights[1], current_weights[2]])
+                discrete_time_base += 1
+                discrete_time.append(discrete_time_base)
+            if limit is not None and (i == limit or discrete_time_base >= limit):
+                print("Limit reached")
+                break
+    return discrete_time, weights
+
+
+def _plot_discrete_weights_compact_format(filename, anomalies=None, limit=None):
+    _disc_time, _weights = _get_compact_discrete_weights(filename, limit)
+    print("Num weights: ", len(_weights), " num timestamps: ", len(_disc_time))
+    weights = np.asarray(_weights[:], dtype=np.uint32)
+    labels = ['lru', 'lfu']
+    shape = ['r-', 'b-']
+    for col, lb, shape in zip(weights.T, labels, shape):
+        plt.plot(_disc_time, col, shape, label=lb)
+
+    if anomalies is not None:
+        _anomaly_disc, _anomaly_weights = _get_discrete_anomalies(anomalies, limit)
+        plt.plot(_anomaly_disc, _anomaly_weights, 'gD')
+    plt.show()
 
 
 def plot_weights(filename):
@@ -46,18 +90,84 @@ def plot_smooth_weights(filename):
     plt.show()
 
 
-def plot_weights_with_compact_format(filename):
-    _disc_time, _weights = _get_compact_weights(filename)
-    print("Num sampes: ", len(_weights))
+def _get_discrete_anomalies(anomalies, limit=None):
+    discrete_time = []
+    weights = []
+    with open(anomalies, "r", encoding="utf-8") as anomaly_file:
+        for i, weights_double in enumerate(anomaly_file):
+            current_weights = weights_double.replace(",", ".").split("\t")
+            curr_disc_time = int(current_weights[0].strip())
+            discrete_time.append(curr_disc_time)
+            weights.append(int(current_weights[1]))
+            if limit is not None and (i == limit or curr_disc_time >= limit):
+                print("Limit reached")
+                break
+    return discrete_time, np.asarray(weights, dtype=np.uint32)
+
+
+def _get_anomalies(anomalies, limit=None):
+    discrete_time = []
+    weights = []
+    with open(anomalies, "r", encoding="utf-8") as anomaly_file:
+        for i, weights_double in enumerate(anomaly_file):
+            current_weights = weights_double.replace(",", ".").split("\t")
+            curr_disc_time = int(float(current_weights[0].strip()))
+            discrete_time.append(curr_disc_time)
+            weights.append(current_weights[1])
+            if limit is not None and (i == limit or curr_disc_time >= limit):
+                print("Limit reached")
+                break
+    return discrete_time, np.asarray(weights, dtype=np.float32)
+
+
+def plot_weights_with_compact_format(filename, anomalies=None, limit=None, ):
+    _disc_time, _weights = _get_compact_weights(filename, limit)
+    print("Num weights: ", len(_weights), " num timestamps: ", len(_disc_time))
     weights = np.asarray(_weights[:], dtype=np.float32)
     labels = ['lru', 'lfu']
     shape = ['r-', 'b-']
     for col, lb, shape in zip(weights.T, labels, shape):
-        plot = plt.plot(_disc_time, col, shape, label=lb)
-        # plt.legend(handler_map={plot: HandlerLine2D(numpoints=4)})
+        plt.plot(_disc_time, col, shape, label=lb)
 
+    if anomalies is not None:
+        _anomaly_disc, _anomaly_weights = _get_anomalies(anomalies, limit)
+        plt.plot(_anomaly_disc, _anomaly_weights, 'gD')
+    plt.show()
+
+
+def plot_several_weights_with_compact_format(filename_list, limit=None):
+    shape = ['r-', 'b-', 'g-', 'm-']
+    index = 0
+    for filename in filename_list:
+        _disc_time, _weights = _get_compact_weights(filename, limit)
+        print("Num weights: ", len(_weights), " num timestamps: ", len(_disc_time))
+        weights = np.asarray(_weights[:], dtype=np.float32)
+        labels = ['lru', 'lfu']
+
+        for col, lb in zip(weights.T, labels):
+            plt.plot(_disc_time, col, shape[index], label=lb)
+            index += 1
     plt.show()
 
 
 if __name__ == '__main__':
-    plot_weights_with_compact_format("C:/Users/havar/Home/cache_simulation_results/weights13.csv")
+    basedir = "C:/Users/havar/Home/cache_simulation_results/"
+    '''
+    plot_weights_with_compact_format(
+        filename=basedir + "weights_ex_1_lr03_dyn99.csv",
+        anomalies=basedir + "anomalies_ex_1_lr03_dyn99.csv",
+        limit=2000000
+    )
+    '''
+    filenames = \
+        [basedir + "scaled_8_w.csv",
+         basedir + "scaled_7_w.csv"
+         ]
+    plot_several_weights_with_compact_format(filenames, 1_000_000)
+    '''
+    _plot_discrete_weights_compact_format(
+        filename=basedir + "scaled_5_w.csv",
+        anomalies=basedir + "scaled_5_a.csv",
+        limit=None
+    )
+    '''
