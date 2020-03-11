@@ -135,18 +135,20 @@ def plot_weights_with_compact_format(filename, anomalies=None, limit=None, ):
     plt.show()
 
 
-def plot_several_weights_with_compact_format(filename_list, limit=None):
-    shape = ['r-', 'b-', 'g-', 'm-']
+def plot_several_weights_with_compact_format(filename_list, labels, limit=None):
+    shape = ['r-', 'b-', 'g-', 'm-', 'c-', 'y-']
     index = 0
+    plots = []
     for filename in filename_list:
         _disc_time, _weights = _get_compact_weights(filename, limit)
         print("Num weights: ", len(_weights), " num timestamps: ", len(_disc_time))
         weights = np.asarray(_weights[:], dtype=np.float32)
-        labels = ['lru', 'lfu']
 
         for col, lb in zip(weights.T, labels):
-            plt.plot(_disc_time, col, shape[index], label=lb)
+            plot, = plt.plot(_disc_time, col, shape[index], label=lb)
+            plots.append(plot)
             index += 1
+    plt.legend(plots, labels)
     plt.show()
 
 
@@ -160,10 +162,11 @@ if __name__ == '__main__':
     )
     '''
     filenames = \
-        [basedir + "scaled_8_w.csv",
-         basedir + "scaled_7_w.csv"
-         ]
-    plot_several_weights_with_compact_format(filenames, 1_000_000)
+        [basedir + "res_LR_w.csv", basedir + "res_LR_W_w.csv", basedir + "res_None_w.csv"]
+    # _plot_hit_rates([basedir + "res_LR_r.csv", basedir + "res_LR_W_r.csv", basedir + "res_None_r.csv"],
+    #                ["LR", "LR_W", "None"], None)
+    plot_several_weights_with_compact_format(filenames,
+                                             ["LR_LRU", "LR_LFU", "LR_W_LRU", "LR_W_LFU", "None_LRU", "None_LFU"], 20000)
     '''
     _plot_discrete_weights_compact_format(
         filename=basedir + "scaled_5_w.csv",
