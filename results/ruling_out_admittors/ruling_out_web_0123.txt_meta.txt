@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\cache_simulation_results\ruling_out_web_0123.txt
+Maximum size: 200000
+File(s): [web_0.csv.gz, web_1.csv.gz, web_2.csv.gz, web_3.csv.gz]
