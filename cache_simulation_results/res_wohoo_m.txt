@@ -1,0 +1,4 @@
+Policy,Hit rate,Hits,Misses,Requests,Evictions,Admit rate,Requests Weight,Weighted Hit Rate,Average Miss Penalty,Average Penalty,Steps,Time
+"lecar.LR(0,300000)","14,26",793369,4768333,5561702,4763333,"100,00",0,"100,00","0,00","0,00",5561702,6807
+"lecar.LR_W(0,300000)","24,11",1340838,4220864,5561702,4215864,"100,00",0,"100,00","0,00","0,00",5561702,5389
+"lecar.None(0,300000)","14,26",793369,4768333,5561702,4763333,"100,00",0,"100,00","0,00","0,00",5561702,7035

@@ -1,0 +1,8 @@
+
+SIZE = 500
+Uten noe; financial 1: Hit rate=0,167881
+Med litt adaption; financial 1: Hit rate=0,167926
+
+SIZE = 5000
+Hit rate=0,142649
+Med litt adaption; 0,281969

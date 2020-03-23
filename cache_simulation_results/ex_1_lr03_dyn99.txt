@@ -1,0 +1,4 @@
+Policy,Hit rate,Hits,Misses,Requests,Evictions,Admit rate,Requests Weight,Weighted Hit Rate,Average Miss Penalty,Average Penalty,Steps,Time
+adaptive.Arc,"3,52",298399,8186869,8485268,7186869,"100,00",0,"100,00","0,00","0,00",8485268,13107
+adaptive.Lecar,"5,40",458346,8026922,8485268,7026922,"100,00",0,"100,00","0,00","0,00",8485268,31112
+opt.Clairvoyant,"19,29",1636752,6848516,8485268,5848516,"100,00",0,"100,00","0,00","0,00",,32760
