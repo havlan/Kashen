@@ -1,0 +1,15 @@
+Policy,Hit rate,Weighted Hit Rate,Relative
+Lfu,0.05,0.0,0.0
+Lfu_Comparison,0.0,0.0,-0.05
+Lfu_Secondary,0.06,0.0,0.01
+Lfu_Threshold15,0.05,0.0,0.0
+Lfu_TinyLfu,0.06,0.0,0.01
+Lfu_TinyLfuBoost,0.06,0.0,0.01
+Lfu_TinyLfuMulti,0.0,0.0,-0.05
+Lru,0.02,0.0,0.0
+Lru_Comparison,0.0,0.0,-0.02
+Lru_Secondary,0.06,0.0,0.04
+Lru_Threshold15,0.02,0.0,0.0
+Lru_TinyLfu,0.06,0.0,0.04
+Lru_TinyLfuBoost,0.06,0.0,0.04
+Lru_TinyLfuMulti,0.0,0.0,-0.02

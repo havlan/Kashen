@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results\ruling_out_admittors\ruling_out_web_1.txt
+Maximum size: 200000
+File(s): [web_1.csv.gz]

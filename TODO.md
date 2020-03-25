@@ -16,5 +16,5 @@ Caching workspace for masters thesis
 
 ### Done ✓
 
-- [x] Designed my rocket  
+- [x] FUCKINGS VURDER OM DET ER LURT Å SLÅ SAMMEN WEB_0..4  
 

@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results\wdev\wdev_0.txt
+Maximum size: 200000
+File(s): [wdev_0.csv.gz]

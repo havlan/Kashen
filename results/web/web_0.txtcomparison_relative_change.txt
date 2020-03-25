@@ -1,0 +1,23 @@
+Policy,Hit rate,Weighted Hit Rate,Hit rate change,Percentage hit rate change,Weighted hit rate change,Percentage weighted hit rate change
+heap.Boost,30.07,10.06,0.0,0.0%,0.0,0.0%
+heap.Boost_Comparison,27.99,9.09,-2.08,-6.92%,-0.97,-9.64%
+heap.None,30.13,10.04,0.0,0.0%,0.0,0.0%
+heap.None_Comparison,28.12,8.88,-2.01,-6.67%,-1.16,-11.55%
+heap.One,30.13,10.04,0.0,0.0%,0.0,0.0%
+heap.One_Comparison,28.12,8.88,-2.01,-6.67%,-1.16,-11.55%
+heap.Skip,29.43,9.86,0.0,0.0%,0.0,0.0%
+heap.Skip_Comparison,27.08,8.79,-2.35,-7.99%,-1.07,-10.85%
+linked.Clock,21.76,7.59,0.0,0.0%,0.0,0.0%
+linked.Clock_Comparison,19.26,5.2,-2.5,-11.49%,-2.39,-31.49%
+linked.Fifo,17.71,6.49,0.0,0.0%,0.0,0.0%
+linked.Fifo_Comparison,11.26,3.02,-6.45,-36.42%,-3.47,-53.47%
+linked.Lfu,26.22,9.09,0.0,0.0%,0.0,0.0%
+linked.Lfu_Comparison,26.04,7.29,-0.18,-0.69%,-1.8,-19.8%
+linked.Lfucostboost,25.73,9.24,0.0,0.0%,0.0,0.0%
+linked.Lfucostboost_Comparison,25.07,7.21,-0.66,-2.57%,-2.03,-21.97%
+linked.Lru,20.44,7.23,0.0,0.0%,0.0,0.0%
+linked.Lru_Comparison,17.48,4.59,-2.96,-14.48%,-2.64,-36.51%
+linked.Mfu,16.71,6.26,0.0,0.0%,0.0,0.0%
+linked.Mfu_Comparison,7.32,2.13,-9.39,-56.19%,-4.13,-65.97%
+linked.Mru,8.48,3.24,0.0,0.0%,0.0,0.0%
+linked.Mru_Comparison,4.67,1.79,-3.81,-44.93%,-1.45,-44.75%

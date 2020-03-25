@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results\mds\mds_0.txt
+Maximum size: 100000
+File(s): [mds_0.csv.gz]

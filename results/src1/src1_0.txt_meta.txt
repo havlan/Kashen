@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results\src1\src1_0.txt
+Maximum size: 3000000
+File(s): [src1_0.csv.gz]
