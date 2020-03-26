@@ -28,9 +28,16 @@ def filter_out_policies_based_on_name(data, policies):
         return data
 
     tmp = data
-    for p in policies:
-        tmp = tmp[~tmp.index.str.contains(p)]
+    tmp = tmp[~tmp.index.isin(policies)]
 
+    return tmp
+
+def filter_out_admittors_based_on_name(data, admittors):
+    if admittors is None:
+        return data
+    tmp = data
+    for a in admittors:
+        tmp = tmp[~tmp.index.str.contains(a)]
     return tmp
 
 
@@ -161,10 +168,12 @@ def get_change_matrix_with_admission(filename):
     data.to_csv(os.path.join(dirname + filename + "comparison_relative_change.txt"))
 
 
-def admission_bar_plot(filename, filter_policies_prefix=None):
+def admission_bar_plot(filename, filter_policies_prefix=None, filter_policies_name=None, filter_admittors=None):
     data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1]).set_index("Policy")
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
     data = filter_out_policies_based_on_prefix(data, filter_policies_prefix)
+    data = filter_out_policies_based_on_name(data, filter_policies_name)
+    data = filter_out_admittors_based_on_name(data, filter_admittors)
     policy_index = data.index
     admittors = []
     policies = []
@@ -189,7 +198,9 @@ def admission_bar_plot(filename, filter_policies_prefix=None):
     plt.show()
 
 
+
+
 if __name__ == '__main__':
     # scatter_plot_based_on_admittor("/results/web/web_0.txt", ["sampled", "product", "heap"])#, ["linked.Mru", "linked.Mfu"])
     admission_bar_plot("/results/web/web_0.txt",
-                       ["sampled", "product", "heap", "linked.Lfucostboost", "linked.Clock"])
+                       ["sampled", "heap", "product"], None, ["Comparison", "Threshold15"])
