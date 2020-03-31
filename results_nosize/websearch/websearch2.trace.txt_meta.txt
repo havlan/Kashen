@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results_nosize\websearch\websearch2.trace.txt
+Maximum size: 500000
+File(s): [WebSearch2.trace.gz]

@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results\proxy\prxy_1.txt
+Maximum size: 2000000
+File(s): [prxy_1.csv.gz]

@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results_nosize\stg\stg_0.txt
+Maximum size: 20000
+File(s): [stg_0.csv.gz]

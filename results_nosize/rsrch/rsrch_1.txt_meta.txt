@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results_nosize\rsrch\rsrch_1.txt
+Maximum size: 10000
+File(s): [rsrch_1.csv.gz]

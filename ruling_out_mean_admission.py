@@ -1,17 +1,22 @@
+import itertools
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from decimal import Decimal
+import itertools
+
+from colors import ADMITTOR_COLORS
 
 dirname = os.path.dirname(__file__)
-
+sns.set_palette("hls")
 sns.set_context('paper')
 sns.set(style='ticks')
 
 
-def filter_out_policies_based_on_prefix(data, policies):
+def filter_out_policies_based_on_substring(data, policies):
     if policies is None:
         return data
 
@@ -43,7 +48,7 @@ def filter_out_admittors_based_on_name(data, admittors):
 
 def scatter_plot_based_on_policy(filename):
     data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1, 8]).set_index("Policy")
-    data = filter_out_policies_based_on_prefix(data, ["sampled", "product", "heap"])
+    data = filter_out_policies_based_on_substring(data, ["sampled", "product", "heap"])
     data["Weighted Hit Rate"] = data["Weighted Hit Rate"].str.replace(",", ".").astype(float)
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
     admittormap = {
@@ -80,7 +85,7 @@ def scatter_plot_based_on_policy(filename):
 
 def scatter_plot_based_on_admittor(filename, filter_policies_prefix=None, filter_policies_name=None):
     data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1, 8]).set_index("Policy")
-    data = filter_out_policies_based_on_prefix(data, filter_policies_prefix)
+    data = filter_out_policies_based_on_substring(data, filter_policies_prefix)
     data = filter_out_policies_based_on_name(data, filter_policies_name)
     data["Weighted Hit Rate"] = data["Weighted Hit Rate"].str.replace(",", ".").astype(float)
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
@@ -168,12 +173,10 @@ def get_change_matrix_with_admission(filename):
     data.to_csv(os.path.join(dirname + filename + "comparison_relative_change.txt"))
 
 
-def admission_bar_plot(filename, filter_policies_prefix=None, filter_policies_name=None, filter_admittors=None):
+def admission_bar_plot(filename, filter_policies_prefix=None, filter_policies_name=None, filter_admittors=None, output_file=None):
     data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1]).set_index("Policy")
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
-    data = filter_out_policies_based_on_prefix(data, filter_policies_prefix)
-    data = filter_out_policies_based_on_name(data, filter_policies_name)
-    data = filter_out_admittors_based_on_name(data, filter_admittors)
+
     policy_index = data.index
     admittors = []
     policies = []
@@ -189,18 +192,63 @@ def admission_bar_plot(filename, filter_policies_prefix=None, filter_policies_na
         admittors.append(admittor_found)
     data["Admittor"] = admittors
     data["Policy name"] = policies
-    print(data)
-    print("HEAD: \n", data.head())
-    fg = sns.barplot(x="Policy name", y="Hit rate", hue="Admittor", data=data)
+
+    palette = dict(zip(admittors, sns.color_palette("deep", 7)))
+    data = filter_out_policies_based_on_substring(data, filter_policies_prefix)
+    data = filter_out_policies_based_on_substring(data, filter_policies_name)
+    data = filter_out_admittors_based_on_name(data, filter_admittors)
+
+
+
+    print("HEAD: \n", data)
+    fg = sns.barplot(x="Policy name", y="Hit rate", hue="Admittor", data=data, palette=ADMITTOR_COLORS)
     #plt.grid()
     plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
     plt.tight_layout()
+
+    if output_file is not None:
+        plt.savefig(os.path.join(dirname + output_file))
     plt.show()
 
 
 
 
+def produce_plots(data_dir, figure_dir, categories):
+    if "nosize" in data_dir:
+        weighted = False
+    else:
+        weighted = True
+
+
+    for file in os.listdir(os.path.join(dirname + data_dir)):
+        if len(file.split("_")) > 2:
+            continue
+        print(f"File candidate {file}.")
+
+        figure_out_dir = figure_dir
+        if weighted:
+            fig_name_base = "weighted"
+        else:
+            fig_name_base = "cost"
+
+        experiment_name = file.split(".")[0]
+
+        fig_combinations = set(itertools.combinations(categories, 3))
+        fig_combinations = [list(s) for s in fig_combinations]
+        print(fig_combinations)
+
+        for f in fig_combinations:
+            fig_name_out = set(categories) - set(f)
+            print(fig_name_out)
+            admission_bar_plot(f"{data_dir}/{file}", f, None, None, f"{figure_out_dir}/{fig_name_base}_{experiment_name}_{str(list(fig_name_out)[0])}.png")
+    
+
+
 if __name__ == '__main__':
     # scatter_plot_based_on_admittor("/results/web/web_0.txt", ["sampled", "product", "heap"])#, ["linked.Mru", "linked.Mfu"])
-    admission_bar_plot("/results/web/web_0.txt",
-                       ["sampled", "heap", "product"], None, ["Comparison", "Threshold15"])
+    #admission_bar_plot("/results/web/web_0.txt",
+    #                   ["heap", "linked", "sampled"],
+    #                   filter_policies_name=None,#["Mru", "Mfu"],
+    #                   filter_admittors=None)#["Comparison", "Threshold15"])
+
+    produce_plots("/results/stg", "/figures/stg/weighted", ["linked", "sampled", "heap", "product"])

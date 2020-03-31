@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results_nosize\web\web_0_onlykeys.txt
+Maximum size: 100000
+File(s): [web_0.csv.gz]
