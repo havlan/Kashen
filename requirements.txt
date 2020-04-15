@@ -1,3 +1,5 @@
+seaborn
+paretoset
 keras
 numpy
 matplotlib

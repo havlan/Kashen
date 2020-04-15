@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
+from paretoset import paretoset
 
 dirname = os.path.dirname(__file__)
 
@@ -15,7 +16,7 @@ def get_admittor_df_from_file(filename):
     relative_percentage_hit_rate = []
     relative_weighted_hit_rate = []
     relative_percentage_weighted_hit_rate = []
-    data["Weighted Hit Rate"] = data["Weighted Hit Rate"].str.replace(",", ".").astype(float)
+    data["Weighted hit rate"] = data["Weighted hit rate"].str.replace(",", ".").astype(float)
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
     base = data.iloc[0]
     for index, row in data.iterrows():
@@ -24,7 +25,7 @@ def get_admittor_df_from_file(filename):
             base = row
 
         base_hit_rate = round(float(base["Hit rate"]), 2)
-        base_weighted_hit_rate = round(float(base["Weighted Hit Rate"]), 2)
+        base_weighted_hit_rate = round(float(base["Weighted hit rate"]), 2)
 
         hit_rate = round(float(row["Hit rate"]) - float(base["Hit rate"]), 2)
         if base_hit_rate == 0.0:
@@ -34,11 +35,11 @@ def get_admittor_df_from_file(filename):
         relative_hit_rate.append(hit_rate)
         relative_percentage_hit_rate.append(pct_hit_rate)
 
-        weighted_hit_rate = round(float(row["Weighted Hit Rate"]) - float(base["Weighted Hit Rate"]), 2)
+        weighted_hit_rate = round(float(row["Weighted hit rate"]) - float(base["Weighted hit rate"]), 2)
         if base_weighted_hit_rate == 0.0:
             pct_weighted_hit_rate = 0.0
         else:
-            pct_weighted_hit_rate = round(100.0 * (weighted_hit_rate / float(base["Weighted Hit Rate"])), 2)
+            pct_weighted_hit_rate = round(100.0 * (weighted_hit_rate / float(base["Weighted hit rate"])), 2)
         relative_weighted_hit_rate.append(weighted_hit_rate)
         relative_percentage_weighted_hit_rate.append(pct_weighted_hit_rate)
 
@@ -51,7 +52,7 @@ def get_admittor_df_from_file(filename):
     data["Percentage weighted hit rate change"] = relative_percentage_weighted_hit_rate
     data.to_csv(os.path.join(dirname + filename + "_analyzed_hello.txt"))
 
-    return data.drop(["Hit rate", "Weighted Hit Rate"], axis=1)
+    return data.drop(["Hit rate", "Weighted hit rate"], axis=1)
 
 
 def analyze_directory(directory_name):
@@ -87,11 +88,11 @@ def analyze_simulation(sim_filename, exclude_policies=None):
     data = get_admittor_df_from_file(filename=sim_filename)
     data = data.groupby("Policy").mean()
     print(data)
-    for p in exclude_policies:
-        data = data[~data.index.str.contains(p)]
+    if exclude_policies is not None:
+        for p in exclude_policies:
+            data = data[~data.index.str.contains(p)]
     admittors = []
     for idx, row in data.iterrows():
-        admittor = ""
         if "_" in idx:
             admittor = idx.split("_")[1]
         else:
@@ -99,7 +100,7 @@ def analyze_simulation(sim_filename, exclude_policies=None):
         admittors.append(admittor)
     data["Admittor"] = admittors
     data = data.groupby("Admittor").mean()
-    #plot_df(data)
+    # plot_df(data)
     data["Percentage hit rate change"] = data["Percentage hit rate change"].map('{:,.2f}%'.format)
     data["Percentage weighted hit rate change"] = data["Percentage weighted hit rate change"].map('{:,.2f}%'.format)
     print(data)
@@ -109,8 +110,8 @@ def plot_df(data):
     sns.set_context('paper')
     sns.set(style='ticks')
     print("PLOT_DF", data.head(1))
-    #fg = sns.FacetGrid(data=data, aspect=1.66)
-    #fg.map(plt.scatter, 'Percentage hit rate change')
+    # fg = sns.FacetGrid(data=data, aspect=1.66)
+    # fg.map(plt.scatter, 'Percentage hit rate change')
     fg = sns.barplot(data.index, data['Percentage hit rate change'], alpha=0.8)
     fg.set_xlabel("Admittor")
     fg.set_ylabel("Percentage hit rate change")
@@ -122,4 +123,15 @@ def plot_df(data):
 
 if __name__ == '__main__':
     # analyze_directory("/results/web")
-    analyze_simulation("/results/web/web_0.txt", ["Mru", "Mfu"])
+    analyze_simulation("/results_nosize/web/web_0.txt")#["Mru", "Mfu"])
+
+'''
+Admittor                                                                   
+Comparison                       -7.12%                               7.33%
+None                              0.00%                               0.00%
+Secondary                        -0.40%                               6.61%
+Threshold15                       0.08%                               1.12%
+TinyLfu                           1.94%                              18.12%
+TinyLfuBoost                      2.59%                              19.35%
+TinyLfuMulti                      1.18%                              18.82%
+'''

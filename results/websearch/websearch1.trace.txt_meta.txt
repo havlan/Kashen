@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results\websearch\websearch1.trace.txt
+Maximum size: 100000
+File(s): [WebSearch3.trace.gz]

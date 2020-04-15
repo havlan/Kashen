@@ -7,6 +7,7 @@ import seaborn as sns
 import os
 from decimal import Decimal
 import itertools
+from paretoset import paretoset
 
 from colors import ADMITTOR_COLORS
 
@@ -36,6 +37,7 @@ def filter_out_policies_based_on_name(data, policies):
     tmp = tmp[~tmp.index.isin(policies)]
 
     return tmp
+
 
 def filter_out_admittors_based_on_name(data, admittors):
     if admittors is None:
@@ -173,8 +175,12 @@ def get_change_matrix_with_admission(filename):
     data.to_csv(os.path.join(dirname + filename + "comparison_relative_change.txt"))
 
 
-def admission_bar_plot(filename, filter_policies_prefix=None, filter_policies_name=None, filter_admittors=None, output_file=None):
-    data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1]).set_index("Policy")
+def admission_bar_plot(filename,
+                       filter_policies_prefix=None,
+                       filter_policies_name=None, filter_admittors=None,
+                       output_file=None):
+    data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1]).set_index("Policy").sort_values(by="Policy",
+                                                                                                         ascending=False)
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
 
     policy_index = data.index
@@ -198,30 +204,71 @@ def admission_bar_plot(filename, filter_policies_prefix=None, filter_policies_na
     data = filter_out_policies_based_on_substring(data, filter_policies_name)
     data = filter_out_admittors_based_on_name(data, filter_admittors)
 
-
-
-    print("HEAD: \n", data)
     fg = sns.barplot(x="Policy name", y="Hit rate", hue="Admittor", data=data, palette=ADMITTOR_COLORS)
-    #plt.grid()
+    # plt.grid()
     plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
     plt.tight_layout()
 
     if output_file is not None:
+        print(f"Saving file to {os.path.join(dirname+output_file)}")
         plt.savefig(os.path.join(dirname + output_file))
     plt.show()
 
 
+def top_k_plot(k,
+               filename,
+               filter_policies_name=None,
+               filter_admittors=None,
+               output_file=None):
+    data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1, 8]).set_index("Policy")
+    data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
+    data["Weighted hit rate"] = data["Weighted hit rate"].str.replace(",", ".").astype(float)
+
+    policy_index = data.index
+    admittors = []
+    policies = []
+    for s in policy_index:
+        tmp = s.split(".")
+        prefix = ""
+        if tmp[0] in ["sampled","linked", "heap"]:
+            prefix = f"{tmp[0][0]}."
+        tmp = tmp[1].split("_")[0]
+        policies.append(f"{prefix}{tmp}")
+
+        if '_' in s:
+            admittor_found = s.split("_")[1]
+        else:
+            admittor_found = "None"
+        admittors.append(admittor_found)
+    data["Policy name"] = policies
+    data["Admittor"] = admittors
+
+    data = filter_out_policies_based_on_substring(data, filter_policies_name)
+    data = filter_out_admittors_based_on_name(data, filter_admittors)
+    data = data.sort_values(by="Hit rate", ascending=False)
+    plot_df(data.head(k))
+
+def plot_df(df, save_as=None):
+    fg = sns.barplot(x="Policy name", y="Hit rate", hue="Admittor", data=df, palette=ADMITTOR_COLORS)
+    # plt.grid()
+    plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(os.path.join(dirname + save_as))
+    #plt.show()
 
 
-def produce_plots(data_dir, figure_dir, categories):
+
+def produce_plots(data_dir, figure_dir, categories, filter_policy, filter_admittor):
     if "nosize" in data_dir:
         weighted = False
     else:
         weighted = True
 
-
     for file in os.listdir(os.path.join(dirname + data_dir)):
         if len(file.split("_")) > 2:
+            continue
+        if "meta" in file:
             continue
         print(f"File candidate {file}.")
 
@@ -235,20 +282,33 @@ def produce_plots(data_dir, figure_dir, categories):
 
         fig_combinations = set(itertools.combinations(categories, 3))
         fig_combinations = [list(s) for s in fig_combinations]
-        print(fig_combinations)
 
         for f in fig_combinations:
             fig_name_out = set(categories) - set(f)
-            print(fig_name_out)
-            admission_bar_plot(f"{data_dir}/{file}", f, None, None, f"{figure_out_dir}/{fig_name_base}_{experiment_name}_{str(list(fig_name_out)[0])}.png")
-    
+            admission_bar_plot(f"{data_dir}/{file}", f, filter_policy, filter_admittor,
+                               f"{figure_out_dir}/{fig_name_base}_{experiment_name}_{str(list(fig_name_out)[0])}.png")
+
+
 
 
 if __name__ == '__main__':
     # scatter_plot_based_on_admittor("/results/web/web_0.txt", ["sampled", "product", "heap"])#, ["linked.Mru", "linked.Mfu"])
-    #admission_bar_plot("/results/web/web_0.txt",
+    # admission_bar_plot("/results/web/web_0.txt",
     #                   ["heap", "linked", "sampled"],
     #                   filter_policies_name=None,#["Mru", "Mfu"],
     #                   filter_admittors=None)#["Comparison", "Threshold15"])
 
-    produce_plots("/results/stg", "/figures/stg/weighted", ["linked", "sampled", "heap", "product"])
+    produce_plots(
+        data_dir="/results/web",
+        figure_dir="/figures/web/weighted",
+        categories=["linked", "sampled", "heap", "product"],
+        filter_policy=["Mru", "Mfu"],
+        filter_admittor=["Comparison", "Threshold15", "TinyLfuMulti"]
+    )
+    '''
+    top_k_plot(
+        k=10,
+        filename="/results_nosize/websearch/websearch1.trace.txt",
+        filter_policies_name=["Mru", "Mfu"],
+        filter_admittors=["Comparison", "Threshold15", "TinyLfuMulti"])
+        '''
