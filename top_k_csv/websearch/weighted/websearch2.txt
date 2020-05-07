@@ -1,0 +1,11 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+sampled.Random,TinyLfuBoost,13.93%,8.34%
+sampled.Random,TinyLfu,13.93%,8.34%
+sampled.Lru,TinyLfuBoost,13.76%,8.29%
+sampled.Lru,TinyLfu,13.76%,8.29%
+sampled.Hyperbolic,TinyLfu,13.64%,8.52%
+sampled.Hyperbolic,TinyLfuBoost,13.64%,8.52%
+sampled.Lfu,TinyLfu,13.56%,8.46%
+sampled.Lfu,TinyLfuBoost,13.56%,8.46%
+sampled.Fifo,TinyLfu,13.29%,7.6%
+sampled.Fifo,TinyLfuBoost,13.29%,7.6%

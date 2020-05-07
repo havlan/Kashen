@@ -1,0 +1,11 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+linked.Lfu,None,48.53%,9.1%
+linked.Lfucostboost,None,48.53%,9.1%
+product.Cache2k,None,48.53%,9.1%
+product.ElasticSearch,None,48.23%,9.05%
+linked.Lru,None,48.23%,9.05%
+linked.Clock,None,48.23%,9.04%
+product.Guava,None,48.21%,9.04%
+sampled.Lru,None,48.04%,8.99%
+sampled.Hyperbolic,None,48.0%,8.97%
+sampled.Lfu,None,47.98%,8.93%

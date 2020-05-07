@@ -1,0 +1,5 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+linked.Lfu,None,48.53,9.1
+product.Cache2k,None,48.53,9.1
+sampled.Lru,None,48.04,8.99
+heap.Boost,TinyLfu,37.18,6.75

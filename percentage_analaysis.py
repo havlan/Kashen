@@ -10,7 +10,6 @@ dirname = os.path.dirname(__file__)
 #
 def get_admittor_df_from_file(filename):
     data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1, 8]).sort_values(by=["Policy"])
-    print(data.head(129))
     # data = data.sort_values(by=["Policy"])
     relative_hit_rate = []
     relative_percentage_hit_rate = []
@@ -19,6 +18,7 @@ def get_admittor_df_from_file(filename):
     data["Weighted hit rate"] = data["Weighted hit rate"].str.replace(",", ".").astype(float)
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
     base = data.iloc[0]
+    print("BASE: ", base.to_string())
     for index, row in data.iterrows():
         # print(index)
         if '_' not in row["Policy"]:
@@ -26,7 +26,7 @@ def get_admittor_df_from_file(filename):
 
         base_hit_rate = round(float(base["Hit rate"]), 2)
         base_weighted_hit_rate = round(float(base["Weighted hit rate"]), 2)
-
+        print(f"Comparing base {base['Policy']} with row {row['Policy']}")
         hit_rate = round(float(row["Hit rate"]) - float(base["Hit rate"]), 2)
         if base_hit_rate == 0.0:
             pct_hit_rate = 0.0
@@ -85,9 +85,10 @@ def analyze_directory(directory_name):
 
 
 def analyze_simulation(sim_filename, exclude_policies=None):
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
     data = get_admittor_df_from_file(filename=sim_filename)
     data = data.groupby("Policy").mean()
-    print(data)
     if exclude_policies is not None:
         for p in exclude_policies:
             data = data[~data.index.str.contains(p)]
@@ -100,11 +101,10 @@ def analyze_simulation(sim_filename, exclude_policies=None):
         admittors.append(admittor)
     data["Admittor"] = admittors
     data = data.groupby("Admittor").mean()
-    # plot_df(data)
+    print(data)
     data["Percentage hit rate change"] = data["Percentage hit rate change"].map('{:,.2f}%'.format)
     data["Percentage weighted hit rate change"] = data["Percentage weighted hit rate change"].map('{:,.2f}%'.format)
-    print(data)
-
+    print (data)
 
 def plot_df(data):
     sns.set_context('paper')
@@ -123,15 +123,14 @@ def plot_df(data):
 
 if __name__ == '__main__':
     # analyze_directory("/results/web")
-    analyze_simulation("/results_nosize/web/web_0.txt")#["Mru", "Mfu"])
+    analyze_simulation("/results/web/web_0.txt")#,["Mru", "Mfu"])
 
 '''
-Admittor                                                                   
-Comparison                       -7.12%                               7.33%
+Comparison                      -25.86%                             -35.35%
 None                              0.00%                               0.00%
-Secondary                        -0.40%                               6.61%
-Threshold15                       0.08%                               1.12%
-TinyLfu                           1.94%                              18.12%
-TinyLfuBoost                      2.59%                              19.35%
-TinyLfuMulti                      1.18%                              18.82%
+Secondary                        -8.85%                             -30.97%
+Threshold15                       1.03%                              -2.01%
+TinyLfu                          35.93%                              15.55%
+TinyLfuBoost                     27.35%                               6.64%
+TinyLfuMulti                    -57.59%                             -64.25%
 '''

@@ -1,0 +1,11 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+product.Caffeine,None,60.47%,52.57%
+sampled.Hyperbolic,None,59.24%,50.79%
+sampled.Lfu,None,59.22%,50.75%
+sampled.Lru,Secondary,59.19%,49.87%
+product.Cache2k,None,59.0%,50.51%
+linked.Lfucostboost,Secondary,58.85%,50.26%
+linked.Lfu,Secondary,58.85%,50.26%
+linked.Lfucostboost,None,58.45%,49.76%
+linked.Lfu,None,58.45%,49.76%
+sampled.Hyperbolic,Secondary,58.31%,48.82%

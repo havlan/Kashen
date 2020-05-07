@@ -1,0 +1,5 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+sampled.Fifo,Secondary,1.92,0.39
+linked.Lfucostboost,TinyLfu,1.64,0.25
+product.Caffeine,None,1.6,0.19
+heap.One,None,1.5,0.23

@@ -1,0 +1,11 @@
+Policy,Hit rate,Weighted hit rate,Admittor
+sampled.Hyperbolic_Secondary,24.8,2.12,Secondary
+sampled.Random_TinyLfu,24.41,2.78,TinyLfu
+linked.Lfu_Secondary,24.09,2.85,Secondary
+sampled.Lfu_Secondary,24.05,2.64,Secondary
+sampled.Lru_Secondary,23.9,1.95,Secondary
+linked.Lru_Secondary,23.88,1.99,Secondary
+linked.Lfucostboost_Secondary,23.87,2.86,Secondary
+sampled.Fifo_TinyLfu,23.69,2.64,TinyLfu
+product.Caffeine,23.33,2.5,None
+linked.Clock_Secondary,23.23,2.04,Secondary

@@ -1,4 +1,4 @@
-Policy,Hit rate,Hits,Misses,Requests,Evictions,Admit rate,Requests Weight,Weighted Hit Rate,Average Miss Penalty,Average Penalty,Steps,Time
+Policy,Hit rate,Hits,Misses,Requests,Evictions,Admit rate,Requests Weight,Weighted hit rate,Average Miss Penalty,Average Penalty,Steps,Time
 linked.Fifo_Secondary,"35,34",4424828,8094140,12518968,8093438,"0,00",61035634176,"13,13","0,00","0,00",12519021,10254
 sampled.Fifo_TinyLfu,"32,71",4094890,8424076,12518966,8423536,"0,01",61033537024,"20,91","0,00","0,00",79907256,43218
 sampled.Fifo_TinyLfuBoost,"32,71",4094890,8424076,12518966,8423536,"0,01",61033537024,"20,91","0,00","0,00",79907256,45952

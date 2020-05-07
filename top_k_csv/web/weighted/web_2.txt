@@ -1,0 +1,11 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+linked.Clock,Secondary,0.41%,0.03%
+linked.Lfu,TinyLfu,0.41%,0.03%
+linked.Lfucostboost,TinyLfu,0.41%,0.03%
+linked.Lru,TinyLfu,0.4%,0.03%
+linked.Clock,TinyLfu,0.4%,0.03%
+heap.None,None,0.38%,0.03%
+heap.One,None,0.38%,0.03%
+product.Caffeine,None,0.38%,0.03%
+sampled.Random,TinyLfuBoost,0.37%,0.03%
+sampled.Random,TinyLfu,0.37%,0.03%

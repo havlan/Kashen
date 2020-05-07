@@ -11,6 +11,9 @@ from paretoset import paretoset
 
 from colors import ADMITTOR_COLORS
 
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+
 dirname = os.path.dirname(__file__)
 sns.set_palette("hls")
 sns.set_context('paper')
@@ -135,7 +138,7 @@ def get_change_matrix_with_admission(filename):
     relative_percentage_hit_rate = []
     relative_weighted_hit_rate = []
     relative_percentage_weighted_hit_rate = []
-    data["Weighted Hit Rate"] = data["Weighted Hit Rate"].str.replace(",", ".").astype(float)
+    data["Weighted Hit Rate"] = data["Weighted hit rate"].str.replace(",", ".").astype(float)
     data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
 
     # remove product and sampled
@@ -143,7 +146,7 @@ def get_change_matrix_with_admission(filename):
     data = data[~data.index.str.contains("sampled")]
 
     # only comparison admittor
-    data = data[(data.index.str.contains("Comparison")) | (~data.index.str.contains('_'))]
+    # data = data[(data.index.str.contains("Comparison")) | (~data.index.str.contains('_'))]
     print("DATA AFTER FILTERING: ", data)
 
     base = data.iloc[0]
@@ -210,9 +213,75 @@ def admission_bar_plot(filename,
     plt.tight_layout()
 
     if output_file is not None:
-        print(f"Saving file to {os.path.join(dirname+output_file)}")
+        print(f"Saving file to {os.path.join(dirname + output_file)}")
         plt.savefig(os.path.join(dirname + output_file))
     plt.show()
+
+
+def get_top_k(k,
+              filename,
+              filter_policies_name=None,
+              filter_admittors=None,
+              output_file=None,
+              keep_policy=True,
+              keep_category=True,
+              asc=False,
+              sort_by_weights=False,
+              as_pct=True):
+    data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1, 8]).set_index("Policy")
+    data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
+    data["Weighted hit rate"] = data["Weighted hit rate"].str.replace(",", ".").astype(float)
+    policy_index = data.index
+    admittors = []
+    policies = []
+    categories = []
+    for s in policy_index:
+        tmp = s.split(".")
+        categories.append(tmp[0])
+        prefix = ""
+        '''
+        if tmp[0] in ["sampled", "linked", "heap"]:
+            prefix = f"{tmp[0][0]}."
+        '''
+        tmp = tmp[1]
+        policies.append(f"{prefix}{tmp}")
+
+        if '_' in s:
+            admittor_found = s.split("_")[1]
+        else:
+            admittor_found = "None"
+        admittors.append(admittor_found)
+
+    cats = ["Admittor", "Hit rate", "Weighted hit rate"]
+    if keep_category:
+        data["Category"] = categories
+        cats.append("Category")
+    if keep_policy:
+        data["Policy name"] = policies
+        cats.append("Policy name")
+    data["Admittor"] = admittors
+
+    data = filter_out_policies_based_on_substring(data, filter_policies_name)
+    data = filter_out_admittors_based_on_name(data, filter_admittors)
+    if sort_by_weights:
+        data = data.sort_values(by="Weighted hit rate", ascending=asc)
+    else:
+        data = data.sort_values(by="Hit rate", ascending=asc)
+    if as_pct:
+        data["Hit rate"] = data["Hit rate"].map(lambda n: f"{n}%")
+        data["Weighted hit rate"] = data["Weighted hit rate"].map(lambda n: f"{n}%")
+    preidx = data.index.tolist()
+    newidx = []
+    for idx in preidx:
+        newidx.append(idx.split("_")[0])
+    data.index = newidx
+    data.index.names = ["Policy"]
+
+    data = data[cats]
+    data = data.head(k)
+    if output_file is not None:
+        data.to_csv(os.path.join(dirname + output_file))
+    return data
 
 
 def top_k_plot(k,
@@ -230,7 +299,7 @@ def top_k_plot(k,
     for s in policy_index:
         tmp = s.split(".")
         prefix = ""
-        if tmp[0] in ["sampled","linked", "heap"]:
+        if tmp[0] in ["sampled", "linked", "heap"]:
             prefix = f"{tmp[0][0]}."
         tmp = tmp[1].split("_")[0]
         policies.append(f"{prefix}{tmp}")
@@ -248,6 +317,7 @@ def top_k_plot(k,
     data = data.sort_values(by="Hit rate", ascending=False)
     plot_df(data.head(k))
 
+
 def plot_df(df, save_as=None):
     fg = sns.barplot(x="Policy name", y="Hit rate", hue="Admittor", data=df, palette=ADMITTOR_COLORS)
     # plt.grid()
@@ -255,8 +325,7 @@ def plot_df(df, save_as=None):
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(os.path.join(dirname + save_as))
-    #plt.show()
-
+    # plt.show()
 
 
 def produce_plots(data_dir, figure_dir, categories, filter_policy, filter_admittor):
@@ -289,6 +358,102 @@ def produce_plots(data_dir, figure_dir, categories, filter_policy, filter_admitt
                                f"{figure_out_dir}/{fig_name_base}_{experiment_name}_{str(list(fig_name_out)[0])}.png")
 
 
+def get_diff_sampled_linked(filename):
+    df = get_top_k(300, filename, None, None, as_pct=False)
+    linked = filter_out_policies_based_on_substring(df, ["sampled", "product", "heap"])
+    linked = filter_out_admittors_based_on_name(linked, ["Comparison", "Threshold15", "TinyLfuMulti"])
+    linked = linked.set_index("Policy name")
+    sampled = filter_out_policies_based_on_substring(df, ["linked", "product", "heap"])
+    sampled = filter_out_admittors_based_on_name(sampled, ["Comparison", "Threshold15", "TinyLfuMulti"])
+    sampled = sampled.set_index("Policy name")
+
+
+    diff = linked["Hit rate"] - sampled["Hit rate"]
+    catted = linked.join(sampled, lsuffix="_l", rsuffix="_s")
+    catted = catted.drop(
+        ["Admittor_l", "Admittor_s", "Category_l", "Category_s", "Weighted hit rate_l", "Weighted hit rate_s"], axis=1)
+    # catted["Diff"] = catted["Hit rate_l"] - catted["Hit rate_s"]
+    print(catted.head(30))
+    diff = []
+    for index, row in catted.iterrows():
+        diff.append(round(float(100.0 * (row["Hit rate_s"] - row["Hit rate_l"]) / row["Hit rate_l"]), 2))
+        # diff.append(round(100.0 * (float(row["Hit rate_s"]) - float(row["Hit rate_l"]) / float(row["Hit rate_l"])), 2))
+    catted["Diff"] = diff
+    catted = catted[catted["Diff"].notna()]
+    # data["Hit rate"] = data["Hit rate"].map(lambda n: f"{n}%")
+    # data["Weighted hit rate"] = data["Weighted hit rate"].map(lambda n: f"{n}%")
+    catted["Diff"] = catted["Diff"].map(lambda n: f"{n}%")
+    catted[["Diff"]].to_csv("catted")
+
+
+def get_top_by_category(filename, filter_policies_name, filter_admittors, output_file, keep_policy):
+    data = pd.read_csv(os.path.join(dirname + filename), usecols=[0, 1, 8]).set_index("Policy")
+    data["Hit rate"] = data["Hit rate"].str.replace(",", ".").astype(float)
+    data["Weighted hit rate"] = data["Weighted hit rate"].str.replace(",", ".").astype(float)
+    policy_index = data.index
+    admittors = []
+    policies = []
+    categories = []
+    for s in policy_index:
+        tmp = s.split(".")
+        categories.append(tmp[0])
+        prefix = ""
+        '''
+        if tmp[0] in ["sampled", "linked", "heap"]:
+            prefix = f"{tmp[0][0]}."
+        '''
+        tmp = tmp[1]
+        policies.append(f"{prefix}{tmp}")
+
+        if '_' in s:
+            admittor_found = s.split("_")[1]
+        else:
+            admittor_found = "None"
+        admittors.append(admittor_found)
+    data["Category"] = categories
+    if keep_policy:
+        data["Policy name"] = policies
+    data["Admittor"] = admittors
+
+    data = filter_out_policies_based_on_substring(data, filter_policies_name)
+    data = filter_out_admittors_based_on_name(data, filter_admittors)
+    data = data.sort_values(by="Hit rate", ascending=False)
+    data = data.groupby("Category").head(1)
+    print(data.head(10))
+    preidx = data.index.tolist()
+    newidx = []
+    for idx in preidx:
+        newidx.append(idx.split("_")[0])
+    data.index = newidx
+    data.index.names = ["Policy"]
+
+    if keep_policy:
+        data = data[["Admittor", "Hit rate", "Weighted hit rate", "Policy name", "Category"]]
+    else:
+        data = data[["Admittor", "Hit rate", "Weighted hit rate"]]
+    if output_file is not None:
+        data.to_csv(os.path.join(dirname + output_file))
+    return data
+
+
+def top_cat_plot():
+    data = get_top_by_category(
+        filename="/results/web/web_0.txt",
+        filter_policies_name=["Mru", "Mfu"],
+        filter_admittors=["Comparison", "Threshold15", "TinyLfuMulti"],
+        output_file="/top_by_cat/web/weighted/web_0.txt",
+        keep_policy=True,
+    )
+    fg = sns.barplot(x="Policy name", y="Hit rate", hue="Category", data=data, palette=ADMITTOR_COLORS)
+    # plt.grid()
+    plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    '''
+    if output_file is not None:
+        print(f"Saving file to {os.path.join(dirname + output_file)}")
+        plt.savefig(os.path.join(dirname + output_file))
+    '''
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -298,17 +463,57 @@ if __name__ == '__main__':
     #                   filter_policies_name=None,#["Mru", "Mfu"],
     #                   filter_admittors=None)#["Comparison", "Threshold15"])
 
+    # d = get_diff_sampled_linked("/results/web/web_0.txt")
+    # print(d.head(100))
+    # get_change_matrix_with_admission("/results/web/web_0.txt")
+    '''
+    df = get_top_k(
+        k=100,
+        filename="/results/web/web_0.txt",
+        filter_policies_name=["Mru", "Mfu"],
+        filter_admittors=["Comparison", "Threshold15", "TinyLfuMulti"]
+    )
+    '''
+    get_diff_sampled_linked("/results/web/web_0.txt")
+
+    '''
+    top_cat_plot()
+    
+    get_top_by_category(
+        filename="/results/web/web_0.txt",
+        filter_policies_name=None,#["Mru", "Mfu"],
+        filter_admittors=None,#["Comparison", "Threshold15", "TinyLfuMulti"],
+        output_file="/top_by_cat/web/weighted/web_0.txt",
+        keep_policy=False,
+    )
+    
+
+    d = get_top_k(
+        k=10,
+        filename="/results_nosize/financial/financial2.trace.txt",
+        filter_policies_name=["Mru", "Mfu"],
+        filter_admittors=["Comparison", "Threshold15", "TinyLfuMulti"],
+        output_file="/top_k_csv/financial/cost/financial2.txt",
+        keep_category=False,
+        keep_policy=False,
+        asc=False,
+        sort_by_weights=False
+    )
+    print(d.head(150))
+    '''
+    '''
     produce_plots(
-        data_dir="/results/web",
-        figure_dir="/figures/web/weighted",
+        data_dir="/results/websearch",
+        figure_dir="/figures/websearch/weighted",
         categories=["linked", "sampled", "heap", "product"],
-        filter_policy=["Mru", "Mfu"],
+        filter_policy=["linked.Mru", "linked.Mfu"],
         filter_admittor=["Comparison", "Threshold15", "TinyLfuMulti"]
     )
     '''
+    '''
     top_k_plot(
         k=10,
-        filename="/results_nosize/websearch/websearch1.trace.txt",
+        filename="/results_nosize/weighted/websearch1.trace.txt",
         filter_policies_name=["Mru", "Mfu"],
         filter_admittors=["Comparison", "Threshold15", "TinyLfuMulti"])
-        '''
+    '''

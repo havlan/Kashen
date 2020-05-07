@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results\proxy\prxy_0_flip.txt
+Maximum size: 1000000
+File(s): [prxy_0.csv.gz]

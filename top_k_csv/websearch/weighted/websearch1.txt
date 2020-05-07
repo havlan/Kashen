@@ -1,0 +1,11 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+sampled.Random,Secondary,9.59%,5.51%
+sampled.Hyperbolic,Secondary,9.48%,5.53%
+sampled.Lfu,Secondary,9.46%,5.52%
+sampled.Fifo,Secondary,9.05%,5.23%
+sampled.Lru,Secondary,8.77%,5.23%
+sampled.Lru,TinyLfuBoost,8.14%,5.24%
+sampled.Lru,TinyLfu,8.14%,5.24%
+sampled.Fifo,TinyLfu,8.11%,5.1%
+sampled.Fifo,TinyLfuBoost,8.11%,5.1%
+sampled.Random,TinyLfuBoost,8.07%,5.2%

@@ -1,0 +1,5 @@
+Policy,Admittor,Hit rate,Weighted hit rate
+sampled.Hyperbolic,Secondary,24.8,2.12
+linked.Lfu,Secondary,24.09,2.85
+product.Caffeine,None,23.33,2.5
+heap.None,TinyLfu,23.13,2.74
