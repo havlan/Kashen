@@ -361,10 +361,10 @@ def produce_plots(data_dir, figure_dir, categories, filter_policy, filter_admitt
 def get_diff_sampled_linked(filename):
     df = get_top_k(300, filename, None, None, as_pct=False)
     linked = filter_out_policies_based_on_substring(df, ["sampled", "product", "heap"])
-    linked = filter_out_admittors_based_on_name(linked, ["Comparison", "Threshold15", "TinyLfuMulti"])
+    linked = filter_out_admittors_based_on_name(linked, ["Comparison", "Threshold", "TinyLfuMulti"])
     linked = linked.set_index("Policy name")
     sampled = filter_out_policies_based_on_substring(df, ["linked", "product", "heap"])
-    sampled = filter_out_admittors_based_on_name(sampled, ["Comparison", "Threshold15", "TinyLfuMulti"])
+    sampled = filter_out_admittors_based_on_name(sampled, ["Comparison", "Threshold", "TinyLfuMulti"])
     sampled = sampled.set_index("Policy name")
 
 
@@ -440,7 +440,7 @@ def top_cat_plot():
     data = get_top_by_category(
         filename="/results/web/web_0.txt",
         filter_policies_name=["Mru", "Mfu"],
-        filter_admittors=["Comparison", "Threshold15", "TinyLfuMulti"],
+        filter_admittors=["Comparison", "Threshold", "TinyLfuMulti"],
         output_file="/top_by_cat/web/weighted/web_0.txt",
         keep_policy=True,
     )
@@ -466,15 +466,17 @@ if __name__ == '__main__':
     # d = get_diff_sampled_linked("/results/web/web_0.txt")
     # print(d.head(100))
     # get_change_matrix_with_admission("/results/web/web_0.txt")
-    '''
+
     df = get_top_k(
-        k=100,
-        filename="/results/web/web_0.txt",
-        filter_policies_name=["Mru", "Mfu"],
-        filter_admittors=["Comparison", "Threshold15", "TinyLfuMulti"]
+        k=10,
+        filename="/results_nosize/financial/financial1_2.trace.txt",
+        filter_policies_name=None,#["Mru", "Mfu"],
+        filter_admittors=None,#["Comparison", "Threshold", "TinyLfuMulti"],
+        #sort_by_weights=True
     )
-    '''
-    get_diff_sampled_linked("/results/web/web_0.txt")
+    print(df.head(100))
+
+    #get_diff_sampled_linked("/results/web/web_0.txt")
 
     '''
     top_cat_plot()
@@ -503,11 +505,11 @@ if __name__ == '__main__':
     '''
     '''
     produce_plots(
-        data_dir="/results/websearch",
-        figure_dir="/figures/websearch/weighted",
+        data_dir="/results_nosize/web",
+        figure_dir="/figures/web/cost",
         categories=["linked", "sampled", "heap", "product"],
-        filter_policy=["linked.Mru", "linked.Mfu"],
-        filter_admittor=["Comparison", "Threshold15", "TinyLfuMulti"]
+        filter_policy=None,#["linked.Mru", "linked.Mfu"],
+        filter_admittor=None,#["Comparison", "Threshold15", "TinyLfuMulti"]
     )
     '''
     '''

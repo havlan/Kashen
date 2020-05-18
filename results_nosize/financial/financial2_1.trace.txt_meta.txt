@@ -1,0 +1,3 @@
+Output file: C:\Users\havar\Home\Kashen\results_nosize\financial\financial2_1.trace.txt
+Maximum size: 10000
+File(s): [Financial2.trace.gz]

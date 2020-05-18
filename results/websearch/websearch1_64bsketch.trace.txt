@@ -1,0 +1,3 @@
+Policy,Hit rate,Hits,Misses,Requests,Evictions,Admit rate,Requests weight,Weighted hit rate,Average miss penalty,Average penalty,Steps,Time
+product.ElasticSearch,"0,97",10252,1044984,1055236,1011969,"100,00",31966996,"0,65","0,00","0,00",,3107
+product.Caffeine,"4,63",48866,1006370,1055236,961651,"100,00",31966996,"2,86","0,00","0,00",,3533
